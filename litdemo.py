@@ -1,4 +1,5 @@
 import streamlit as st
+# run : streamlit run (path)
 
 st.title('Red Bus')
 
