@@ -26,5 +26,20 @@ chart=alt.Chart(data).mark_circle().encode(x='a',y='b')
 st.altair_chart(chart, use_container_width=True)
 
 
+st.graphviz_chart("""
+
+digraph{
+status  ->  study
+Learn  ->  implement   
+                  
+                  
+                  
+                  }
+
+""")
+
+st.map()
+
+
 
 
