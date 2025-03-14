@@ -30,4 +30,13 @@ st.write("Data","Science")
 
 st.write("# Data")
 
-st.write(st)
+# st.write(st)
+# st.write(sum)
+
+d={
+    'Name': 'Yuvi',
+    'Age':90,
+    'Place':'India'
+
+}
+st.write(d)
