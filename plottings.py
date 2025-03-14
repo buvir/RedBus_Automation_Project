@@ -40,6 +40,13 @@ Learn  ->  implement
 
 st.map()
 
+data = pd.DataFrame({
+    'lat':[40.7128,51.5074,35.6895,33.8688],
+    'lon':[74.0060,0.1278,139.6917,151.2093]
+})
+
+st.map(data)
+
 
 
 
