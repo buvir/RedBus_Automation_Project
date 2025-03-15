@@ -43,6 +43,16 @@ if "route" in df.columns and not filtered_df.empty:  # Ensure 'route' column exi
         selected_route_detail = st.sidebar.selectbox("Select Route", routes)
         filtered_df = filtered_df[filtered_df["route"] == selected_route_detail]
 
+# Sidebar: Second Dropdown - Select Route (if applicable)
+selected_star_rating_detail = None  # Default to None
+
+# Sidebar: Third Dropdown - Select Star Rating (if applicable)
+if "star_rating" in df.columns and not filtered_df.empty:
+    star_ratings = sorted(filtered_df["star_rating"].dropna().unique().tolist())  # Remove NaN & sort
+    if star_ratings:
+        selected_star_ratings = st.sidebar.selectbox("Select Star Rating", star_ratings)
+        filtered_df = filtered_df[filtered_df["star_rating"] == selected_star_ratings]  
+
 # Sidebar multi-select for additional column selection
 selected_columns = st.sidebar.multiselect("Select columns to view", df.columns, default=df.columns)
 
