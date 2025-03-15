@@ -17,3 +17,15 @@ st.time_input('Enter ur time :')
 
 if st.checkbox("Accecpt"):
     st.write("agree")
+
+v1=st.radio("colors",['R','Y','B'],index=1)
+st.write(v1)
+
+v1=st.selectbox("colors",['R','Y','B','G'],index=1)
+st.write(v1)
+
+v1=st.multiselect("colors",['R','Y','B','G'])
+st.write(v1)
+
+c=st.slider("age",min_value=0,max_value=100,step=2)
+st.write(c)
