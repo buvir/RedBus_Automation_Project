@@ -26,6 +26,9 @@ try:
     # Convert to DataFrame
     df = pd.DataFrame(results, columns=column_names)
 
+    col=st.sidebar.selectbox (" select a column ",df.columns)
+    st.write(col)
+
     # Display DataFrame
     st.write("### Bus Routes Data:")
     st.dataframe(df)  # Use st.dataframe() for better display
