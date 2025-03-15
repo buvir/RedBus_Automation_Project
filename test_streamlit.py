@@ -26,8 +26,7 @@ try:
     # Convert to DataFrame
     df = pd.DataFrame(results, columns=column_names)
 
-    col=st.sidebar.selectbox (" select a column ",df.columns)
-    st.write(col)
+
 
     # Display DataFrame
     st.write("### Bus Routes Data:")
@@ -37,6 +36,8 @@ try:
     selected_column = st.sidebar.selectbox("Select a column to view", df.columns)
     st.write(f"### Displaying Column: {selected_column}")
     st.write(df[selected_column])
+
+    
 
 except Exception as e:
     st.error(f"An error occurred: {e}")
