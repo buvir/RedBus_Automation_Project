@@ -26,54 +26,36 @@ def get_data():
 # Load Data
 df = get_data()
 
-# Sidebar multi-select for column selection
-selected_columns = st.sidebar.multiselect("Select columns to view", df.columns, default=df.columns[:10])
+# Sidebar: First Dropdown - Select Route Name
+route_names = df["route_name"].unique().tolist()
+selected_route = st.sidebar.selectbox("Select Route Name", route_names)
 
-# Display selected columns
-st.write("### Selected Data")
-st.dataframe(df[selected_columns],use_container_width=True)
+# Filter data based on selected route
+filtered_df = df[df["route_name"] == selected_route]
 
-# # Create 5 Tabs
-# tab1, tab2, tab3, tab4, tab5,tab6,tab7,tab8,tab9,tab10 = st.tabs(["Tab 1", "Tab 2", "Tab 3", "Tab 4", "Tab 5","Tab 6","Tab 7","Tab 8","Tab 9","Tab 10"])
+# Sidebar: Second Dropdown - Select Route (if applicable)
+selected_route_detail = None  # Default to None
 
-# # Display different sets of data in each tab
-# with tab1:
-#     st.write("id")
-#     st.dataframe(df[0])
+if "route" in df.columns and not filtered_df.empty:  # Ensure 'route' column exists & data is available
+    routes = filtered_df["route"].unique().tolist()
+    
+    if routes:  # Check if there are routes available
+        selected_route_detail = st.sidebar.selectbox("Select Route", routes)
+        filtered_df = filtered_df[filtered_df["route"] == selected_route_detail]
 
-# with tab2:
-#     st.write("route_name")
-#     st.dataframe(df[1])
+# Sidebar multi-select for additional column selection
+selected_columns = st.sidebar.multiselect("Select columns to view", df.columns, default=df.columns)
 
-# with tab3:
-#     st.write("route_link")
-#     st.dataframe(df[2])
+# Display filtered Data
+if selected_route_detail:  # Only show route detail if selected
+    st.write(f"### Selected Data for {selected_route} - {selected_route_detail}")
+else:
+    st.write(f"### Selected Data for {selected_route}")
 
-# with tab4:
-#     st.write("busname")
-#     st.dataframe(df[3])
+st.dataframe(filtered_df[selected_columns], use_container_width=True)
+# # Sidebar multi-select for column selection
+# selected_columns = st.sidebar.multiselect("Select columns to view", df.columns, default=df.columns[:10])
 
-# with tab5:
-#     st.write("bustype")
-#     st.dataframe(df[4])
-
-# with tab6:
-#     st.write("departing_time")
-#     st.dataframe(df[5])
-
-# with tab7:
-#     st.write("bustype")
-#     st.dataframe(df[6])
-
-# with tab8:
-#     st.write("bustype")
-#     st.dataframe(df[7])
-
-# with tab9:
-#     st.write("bustype")
-#     st.dataframe(df[8])
-
-# with tab10:
-#     st.write("bustype")
-#     st.dataframe(df[9])
-
+# # Display selected columns
+# st.write("### Selected Data")
+# st.dataframe(df[selected_columns],use_container_width=True)
