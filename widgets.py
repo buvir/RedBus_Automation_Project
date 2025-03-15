@@ -29,3 +29,10 @@ st.write(v1)
 
 c=st.slider("age",min_value=0,max_value=100,step=2)
 st.write(c)
+
+s=st.number_input("Salary",min_value=20000,max_value=50000,step=500)
+st.write(s)
+
+f=st.file_uploader("Upload ur file")
+if f:
+    st.image(f)
