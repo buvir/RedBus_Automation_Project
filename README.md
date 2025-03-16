@@ -1,6 +1,9 @@
 RedBus Automation Project 🚍
 
-![RedBus Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/RedBus.in_logo.png/800px-RedBus.in_logo.png)
+<p align="center">
+  <img src="https://spaces-cdn.clipsafari.com/3giwl1p6iuolody8ibl2igklhhmi" alt="RedBus Logo" width="300">
+</p>
+
 
 
 Overview
