@@ -64,7 +64,9 @@ Star Rating
 View filtered results in an interactive data table.
 
 Project Structure:
+
 RedBus_Automation_Project
+
 │── scraper.py                  # Selenium script to scrape bus data  
 │── database.py                  # Inserts data into PostgreSQL  
 │── Red_Bus_Web_streamlit.py      # Streamlit web app  
