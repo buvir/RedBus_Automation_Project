@@ -73,10 +73,16 @@ RedBus_Automation_Project
 
 
 Documentation Links
+
 🔹 Python: Python Official Docs (https://docs.python.org/3/)  
+
 🔹 Selenium: Selenium Docs (https://www.selenium.dev/documentation/) 
+
 🔹 Pandas: Pandas Docs (https://pandas.pydata.org/docs/)  
+
 🔹 PostgreSQL: PostgreSQL Docs (https://www.postgresql.org/docs/)
+
 🔹 Streamlit: Streamlit Docs (https://docs.streamlit.io/) 
+
 🔹 psycopg2 (PostgreSQL Connector): psycopg2 Docs (https://www.psycopg.org/docs/)  
 
