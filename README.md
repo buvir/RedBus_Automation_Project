@@ -1,5 +1,7 @@
 RedBus Automation Project 🚍
 
+![RedBus Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/RedBus.in_logo.png/800px-RedBus.in_logo.png)
+
 
 Overview
 This project automates the process of scraping bus details from RedBus, storing them in a PostgreSQL database, and displaying the data using Streamlit. The main objective is to provide an interactive dashboard for users to explore bus details, such as routes, prices, and bus types.
