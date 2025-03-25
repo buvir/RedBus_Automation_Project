@@ -1,9 +1,33 @@
 import streamlit as st
 import pandas as pd
 import psycopg2
+from PIL import Image
+import requests
+from io import BytesIO
 
-# Set page to full width
+# run  this code by -->streamlit run C:\Users\USER\Desktop\RedBus_Automation_Project\Red_Bus_Web_streamlit.py
+
+# Set page to full width and add logo
 st.set_page_config(page_title="Data Viewer", layout="wide")
+
+# Add logo to top left corner
+logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Redbus_logo.jpg/1200px-Redbus_logo.jpg"
+
+# Download and display the logo
+response = requests.get(logo_url)
+logo = Image.open(BytesIO(response.content))
+
+# Resize the logo (adjust width as needed)
+logo = logo.resize((150, 50))
+
+# Create a container for the logo and title
+col1, col2 = st.columns([1, 5])
+with col1:
+    st.image(logo)
+with col2:
+    st.title("RedBus Data Viewer")
+
+#st.set_page_config(page_title="RedBus Data Viewer", layout="wide")
 
 # PostgreSQL connection details
 DB_CONFIG = {
