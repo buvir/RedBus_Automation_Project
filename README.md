@@ -32,6 +32,7 @@ Provides filters for routes, price range, bus type, and ratings.
 Displays data in a user-friendly interactive table.
 
 Installation & Setup
+
 1️⃣ Install Dependencies
 
 pip install (selenium ,pandas, psycopg2-binary, streamlit)
