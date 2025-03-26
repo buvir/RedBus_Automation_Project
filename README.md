@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS bus_routes (
 3️⃣ Start the Streamlit App
 Run the Streamlit dashboard to view the data:
 
-streamlit run Red_Bus_Web_streamlit.py
+streamlit run (Red_Bus_Web_streamlit.py)
 
 **Usage:**
 Open the Streamlit web app and select filters such as:
@@ -83,6 +83,16 @@ RedBus_Automation_Project
 │── README.md                     # Project documentation  
 
 
+**The files for this project**
+
+about this project
+**README.md**
+
+RedBus scraped & pushed to pgsql
+**RedBus_scrape_Push_pgsql_Project.ipynb**
+
+streamlit
+**Red_Bus_Web_streamlit.py**
 
 
 **Streamlit:Libraries Used and the usage:**
