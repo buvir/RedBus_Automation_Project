@@ -4,14 +4,15 @@ import psycopg2
 from PIL import Image
 import requests
 from io import BytesIO
+import base64
 
 # run  this code by -->streamlit run C:\Users\USER\Desktop\RedBus_Automation_Project\Red_Bus_Web_streamlit.py
 
 # Set page to full width and add logo
-st.set_page_config(page_title="Data Viewer", layout="wide")
+st.set_page_config(page_title="RED BUS.IN", layout="wide")
 
 # Add logo to top left corner
-logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Redbus_logo.jpg/1200px-Redbus_logo.jpg"
+logo_url = "https://st.redbus.in/Images/India/ContextualLogin/generic_banner_Ind.png"
 
 # Download and display the logo
 response = requests.get(logo_url)
@@ -25,7 +26,7 @@ col1, col2 = st.columns([1, 5])
 with col1:
     st.image(logo)
 with col2:
-    st.title("RedBus Data Viewer")
+    st.title("RedBus Data Booking")
 
 #st.set_page_config(page_title="RedBus Data Viewer", layout="wide")
 
@@ -61,7 +62,8 @@ df = get_data()
 
 # Sidebar: Select Route Name
 route_names = df["route_name"].unique().tolist()
-selected_route = st.sidebar.selectbox("Select Route Name", route_names)
+selected_route = st.sidebar.multiselect("Select Route Name", route_names)
+
 
 # Filter data based on selected route
 filtered_df = df[df["route_name"] == selected_route]
@@ -73,6 +75,8 @@ if "route" in df.columns and not filtered_df.empty:
         selected_route_detail = st.sidebar.selectbox("Select Route", routes)
         filtered_df = filtered_df[filtered_df["route"] == selected_route_detail]
 
+
+
 # Sidebar: Select Star Rating (if applicable)
 if "star_rating" in df.columns and not filtered_df.empty:
     star_ratings = sorted(filtered_df["star_rating"].dropna().unique().tolist())
@@ -80,9 +84,9 @@ if "star_rating" in df.columns and not filtered_df.empty:
         selected_star_rating = st.sidebar.selectbox("Select Star Rating", star_ratings)
         filtered_df = filtered_df[filtered_df["star_rating"] == selected_star_rating]
 
+
 # Sidebar: Select Bustype (if applicable)
-# Sidebar: Select Bustype (if applicable)
-if "bus_type" in df.columns and not filtered_df.empty:  # ✅ Corrected empty check
+if "bus_type" in df.columns and not filtered_df.empty:  
     bustypes = sorted(filtered_df["bus_type"].dropna().unique().tolist())  # Drop NaN values and sort
 
     # Debugging: Check available bustypes

@@ -79,6 +79,64 @@ RedBus_Automation_Project
 │── README.md                     # Project documentation  
 
 
+
+
+Streamlit:Libraries Used and the usage:
+
+streamlit - Create web apps easily.
+
+pandas - Data manipulation and analysis.
+
+psycopg2 - Connect to PostgreSQL databases.
+
+PIL (Image) - Image processing.
+
+requests - HTTP requests.
+
+BytesIO - Handle binary data.
+
+base64 - Encode/decode data.
+
+
+Selenium:Libraries Used and the usage:
+
+selenium - Automate web browser actions.
+
+By - Locate webpage elements.
+
+ActionChains - Simulate complex user interactions.
+
+Keys - Simulate keyboard inputs.
+
+WebDriverWait - Wait for elements to load.
+
+expected_conditions (EC) - Define wait conditions.
+
+Options - Configure browser settings.
+
+exceptions - Handle Selenium errors.
+
+time - Add delays in scripts.
+
+pandas - Manage data in tables.
+
+re - Work with regex patterns.
+
+tempfile - Create temporary files/folders.
+
+
+Postgres_SQL:Libraries Used and the usage:
+
+psycopg2 - Connect to PostgreSQL databases.
+
+ISOLATION_LEVEL_AUTOCOMMIT - Set auto-commit mode.
+
+datetime - Handle dates and times.
+
+
+
+
+
 Documentation Links
 
 🔹 Python: Python Official Docs (https://docs.python.org/3/)  
