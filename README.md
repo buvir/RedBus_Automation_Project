@@ -1,4 +1,4 @@
-RedBus Automation Project 🚍
+**RedBus Automation Project 🚍**
 
 <p align="center">
   <img src="https://spaces-cdn.clipsafari.com/3giwl1p6iuolody8ibl2igklhhmi" alt="RedBus Logo" width="300">
@@ -6,16 +6,19 @@ RedBus Automation Project 🚍
 
 
 
-Overview
+**Overview**
+
 This project automates the process of scraping bus details from RedBus, storing them in a PostgreSQL database, and displaying the data using Streamlit. The main objective is to provide an interactive dashboard for users to explore bus details, such as routes, prices, and bus types.
 
-Tech Stack
+**Tech Stack**
 Python 🐍 – Core scripting language.
 Selenium 🌐 – Used for web scraping.
 Pandas 📊 – For data manipulation.
 PostgreSQL 🗄️ – Database for storing scraped bus details.
 Streamlit 🎨 – Web interface for displaying the data.
-Project Workflow
+
+**Project Workflow**
+
 Web Scraping:
 
 Uses Selenium to scrape bus details from RedBus.
@@ -59,7 +62,7 @@ Run the Streamlit dashboard to view the data:
 
 streamlit run Red_Bus_Web_streamlit.py
 
-Usage:
+**Usage:**
 Open the Streamlit web app and select filters such as:
 
 Bus Route
@@ -82,7 +85,7 @@ RedBus_Automation_Project
 
 
 
-Streamlit:Libraries Used and the usage:
+**Streamlit:Libraries Used and the usage:**
 
 streamlit - Create web apps easily.
 
@@ -99,7 +102,7 @@ BytesIO - Handle binary data.
 base64 - Encode/decode data.
 
 
-Selenium:Libraries Used and the usage:
+**Selenium:Libraries Used and the usage:**
 
 selenium - Automate web browser actions.
 
@@ -126,7 +129,7 @@ re - Work with regex patterns.
 tempfile - Create temporary files/folders.
 
 
-Postgres_SQL:Libraries Used and the usage:
+**Postgres_SQL:Libraries Used and the usage:**
 
 psycopg2 - Connect to PostgreSQL databases.
 
@@ -138,7 +141,7 @@ datetime - Handle dates and times.
 
 
 
-Documentation Links
+**Documentation Links**
 
 🔹 Python: Python Official Docs (https://docs.python.org/3/)  
 

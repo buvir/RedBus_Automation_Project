@@ -1,36 +1,37 @@
+# RedBus Model Website in Streamlit
+
+# Commands to run:
+# .venv\Scripts\activate
+# pip install requests pillow streamlit psycopg2 pandas
+# streamlit run C:\Users\USER\Desktop\RedBus_Automation_Project\Red_Bus_Web_streamlit.py
+
 import streamlit as st
 import pandas as pd
 import psycopg2
 from PIL import Image
-import requests
-from io import BytesIO
-import base64
 
-# run  this code by -->streamlit run C:\Users\USER\Desktop\RedBus_Automation_Project\Red_Bus_Web_streamlit.py
-
-# Set page to full width and add logo
+# Set page to full width
 st.set_page_config(page_title="RED BUS.IN", layout="wide")
 
-# Add logo to top left corner
-logo_url = "https://st.redbus.in/Images/India/ContextualLogin/generic_banner_Ind.png"
+# Load local logo
+LOCAL_LOGO_PATH = r"C:\Users\USER\Desktop\RedBus_Automation_Project\red bus logo.png"
 
-# Download and display the logo
-response = requests.get(logo_url)
-logo = Image.open(BytesIO(response.content))
+try:
+    logo = Image.open(LOCAL_LOGO_PATH)
+    logo = logo.resize((250, 250))
+except Exception as e:
+    st.error(f"Failed to load logo: {str(e)}")
+    logo = None
 
-# Resize the logo (adjust width as needed)
-logo = logo.resize((150, 50))
-
-# Create a container for the logo and title
+# Create header
 col1, col2 = st.columns([1, 5])
 with col1:
-    st.image(logo)
+    if logo:
+        st.image(logo)
 with col2:
-    st.title("RedBus Data Booking")
+    st.markdown("<h1 style='color: red;'>RedBus Data Booking</h1>", unsafe_allow_html=True)
 
-#st.set_page_config(page_title="RedBus Data Viewer", layout="wide")
-
-# PostgreSQL connection details
+# PostgreSQL connection
 DB_CONFIG = {
     "dbname": "red_bus",
     "user": "postgres",
@@ -39,7 +40,6 @@ DB_CONFIG = {
     "port": "5432",
 }
 
-# Function to fetch data from PostgreSQL
 @st.cache_data
 def get_data():
     conn = psycopg2.connect(**DB_CONFIG)
@@ -47,11 +47,9 @@ def get_data():
     df = pd.read_sql(query, conn)
     conn.close()
     
-    # Ensure 'bustype' is a string and strip spaces
     if "bustype" in df.columns:
         df["bustype"] = df["bustype"].astype(str).str.strip()
     
-    # Ensure 'price' is numeric
     if "price" in df.columns:
         df["price"] = pd.to_numeric(df["price"], errors="coerce")
     
@@ -60,100 +58,95 @@ def get_data():
 # Load Data
 df = get_data()
 
-# Sidebar: Select Route Name
+# Sidebar filters
+st.sidebar.header("Filter Options")
+
+# 1. Route Name Filter
 route_names = df["route_name"].unique().tolist()
-selected_route = st.sidebar.multiselect("Select Route Name", route_names)
+route_options = ["All"] + route_names
+selected_routes = st.sidebar.multiselect(
+    "Select Route Name(s)", 
+    route_options,
+    default=None,
+    help="Select 'All' to include all routes"
+)
 
-
-# Filter data based on selected route
-filtered_df = df[df["route_name"] == selected_route]
-
-# Sidebar: Select Route (if applicable)
-if "route" in df.columns and not filtered_df.empty:
-    routes = filtered_df["route"].dropna().unique().tolist()
-    if routes:
-        selected_route_detail = st.sidebar.selectbox("Select Route", routes)
-        filtered_df = filtered_df[filtered_df["route"] == selected_route_detail]
-
-
-
-# Sidebar: Select Star Rating (if applicable)
-if "star_rating" in df.columns and not filtered_df.empty:
-    star_ratings = sorted(filtered_df["star_rating"].dropna().unique().tolist())
-    if star_ratings:
-        selected_star_rating = st.sidebar.selectbox("Select Star Rating", star_ratings)
-        filtered_df = filtered_df[filtered_df["star_rating"] == selected_star_rating]
-
-
-# Sidebar: Select Bustype (if applicable)
-if "bus_type" in df.columns and not filtered_df.empty:  
-    bustypes = sorted(filtered_df["bus_type"].dropna().unique().tolist())  # Drop NaN values and sort
-
-    # Debugging: Check available bustypes
-    # if not bustypes:
-    #     st.sidebar.warning("No bustype data available for the selected filters.")
-    # else:
-    #     st.sidebar.write("Available Bustypes:", bustypes)  # Debugging print
-
-    if bustypes:  # Ensure values exist
-        selected_bustype = st.sidebar.selectbox("Select Bustype", bustypes)
-
-        # Debugging: Check what is being selected
-        st.sidebar.write(f"Selected Bustype: {selected_bustype}")
-
-        # Apply filter
-        filtered_df = filtered_df[filtered_df["bus_type"] == selected_bustype]
-else:
-    st.sidebar.warning("Bustype column missing or no data available.")
-
-
-# Sidebar: Price Slider (if applicable)
-# Sidebar: Price Slider (if applicable)
-if "price" in filtered_df.columns and not filtered_df["price"].dropna().empty:
-    min_price = int(filtered_df["price"].min())
-    max_price = int(filtered_df["price"].max())
-
-    # Ensure valid min/max values
-    if min_price == max_price:  # If only one unique price, adjust range
-        min_price = max(0, min_price - 100)  # Set a reasonable minimum
-        max_price = min_price + 200  # Set a reasonable range
-
-    selected_price_range = st.sidebar.slider(
-        "Select Price Range", min_price, max_price, (min_price, max_price)
+# 2. Star Rating Filter
+if "star_rating" in df.columns:
+    star_ratings = sorted(df["star_rating"].dropna().unique().tolist())
+    star_options = ["All"] + star_ratings
+    selected_stars = st.sidebar.multiselect(
+        "Select Star Rating(s)",
+        star_options,
+        default=None,
+        help="Select 'All' to include all ratings"
     )
 
-    # Filter Data Based on Price Range
-    filtered_df = filtered_df[
-        (filtered_df["price"] >= selected_price_range[0]) & 
-        (filtered_df["price"] <= selected_price_range[1])
-    ]
-else:
-    st.sidebar.warning("No price data available for filtering.")
+# 3. Bus Type Filter  
+if "bus_type" in df.columns:
+    bus_types = sorted(df["bus_type"].dropna().unique().tolist())
+    bus_options = ["All"] + bus_types
+    selected_types = st.sidebar.multiselect(
+        "Select Bus Type(s)",
+        bus_options,
+        default=None,
+        help="Select 'All' to include all bus types"
+    )
 
-# Sidebar: Column Selection
-selected_columns = st.sidebar.multiselect("Select columns to view", df.columns, default=df.columns)
+# 4. Price Range Slider
+if "price" in df.columns:
+    price_min = int(df["price"].min())
+    price_max = int(df["price"].max())
+    price_range = st.sidebar.slider(
+        "Select Price Range",
+        price_min, price_max,
+        (price_min, price_max),
+        help="Drag to set price range"
+    )
+
+# Apply Filters with proper "All" handling
+filtered_df = df.copy()
+
+# Route filter
+if selected_routes:
+    if "All" in selected_routes:
+        pass  # Show all routes
+    else:
+        filtered_df = filtered_df[filtered_df["route_name"].isin(selected_routes)]
+
+# Star rating filter
+if "star_rating" in df.columns and selected_stars:
+    if "All" in selected_stars:
+        pass  # Show all ratings
+    else:
+        filtered_df = filtered_df[filtered_df["star_rating"].isin(selected_stars)]
+
+# Bus type filter  
+if "bus_type" in df.columns and selected_types:
+    if "All" in selected_types:
+        pass  # Show all bus types
+    else:
+        filtered_df = filtered_df[filtered_df["bus_type"].isin(selected_types)]
+
+# Price filter (always applies unless at full range)
+if "price" in df.columns:
+    if price_range != (price_min, price_max):
+        filtered_df = filtered_df[
+            (filtered_df["price"] >= price_range[0]) & 
+            (filtered_df["price"] <= price_range[1])
+        ]
+
+# Column Selection
+selected_columns = st.sidebar.multiselect(
+    "Select columns to view", 
+    df.columns, 
+    default=df.columns
+)
 
 # Display Data
-st.write(f"### Selected Data for {selected_route}")
+st.write(f"### Filtered Bus Data (Showing {len(filtered_df)} of {len(df)} records)")
 st.dataframe(filtered_df[selected_columns], use_container_width=True)
 
-
-# if r=="selected_route_detail":
-#     progress=st.progress(0)
-#     for i in range(100):
-#         time.sleep(0.1)
-#         progress.progress(i+1)
-#     #st.balloons()
-#     st.write('about us page')
-#     st.success("super!")
-#     st.error("error!")
-#     st.exception("exception?")
-#     st.warning("warning")
-#     st.info("info")
-
-# # Sidebar multi-select for column selection
-# selected_columns = st.sidebar.multiselect("Select columns to view", df.columns, default=df.columns[:10])
-
-# # Display selected columns
-# st.write("### Selected Data")
-# st.dataframe(df[selected_columns],use_container_width=True)
+# Show unfiltered count when filters are active
+if (len(filtered_df) != len(df)):
+    st.sidebar.markdown(f"**Filtered:** {len(filtered_df)}/{len(df)} buses")
