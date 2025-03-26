@@ -145,6 +145,22 @@ selected_columns = st.sidebar.multiselect(
 
 # Display Data
 st.write(f"### Filtered Bus Data (Showing {len(filtered_df)} of {len(df)} records)")
+# Custom CSS
+st.markdown("""
+<style>
+    /* Red headers */
+    .stDataFrame thead tr th {
+        background-color: #ff0000 !important;
+        color: white !important;
+    }
+    
+    /* Red border */
+    .stDataFrame {
+        border: 2px solid #ff0000 !important;
+        border-radius: 5px !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 st.dataframe(filtered_df[selected_columns], use_container_width=True)
 
 # Show unfiltered count when filters are active
