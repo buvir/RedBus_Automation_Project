@@ -166,3 +166,6 @@ datetime - Handle dates and times.
 
 🔹 psycopg2 (PostgreSQL Connector): psycopg2 Docs (https://www.psycopg.org/docs/)  
 
+
+
+![RedBus Automation Output](Screenshot_final_output.png)
