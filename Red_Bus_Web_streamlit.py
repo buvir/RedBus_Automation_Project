@@ -22,7 +22,7 @@ with col1:
     if logo:
         st.image(logo)
 with col2:
-    st.markdown("<h1 style='color: red;'>RedBus Data Booking</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: red;'>RedBus Booking</h1>", unsafe_allow_html=True)
 
 # PostgreSQL connection
 DB_CONFIG = {
@@ -90,7 +90,10 @@ st.sidebar.markdown("**Price Range**")
 price_range = st.sidebar.slider("Select price range", 0, 10000, (0, 10000), 100)
 
 def load_filtered_data():
-    base_query = "SELECT * FROM bus_routes WHERE 1=1"
+    base_query = """
+    SELECT * FROM bus_routes
+    WHERE 1=1
+    """
     params = []
     
     if st.session_state.from_location:
@@ -133,10 +136,43 @@ if not filtered_df.empty:
     filtered_df[['From', 'To']] = filtered_df['route_name'].str.split(' to ', n=1, expand=True)
     ac_count = filtered_df['bus_type'].str.contains('AC', case=False).sum()
     non_ac_count = len(filtered_df) - ac_count
-    st.write(f"### Available Buses (Showing {len(filtered_df)} buses), {ac_count} AC and {non_ac_count} Non-AC")
-    selected_columns = st.multiselect("Select columns to view", filtered_df.columns.tolist(), default=['From', 'To', 'departing_time', 'reaching_time'])
+    
+    # Calculate seat information
+    total_available_seats = filtered_df['seats_available'].sum()
+    
+    # Estimate sleeper/seater seats based on bus type
+    sleeper_buses = filtered_df['bus_type'].str.contains('Sleeper', case=False)
+    sleeper_available = filtered_df[sleeper_buses]['seats_available'].sum()
+    seater_available = total_available_seats - sleeper_available
+    
+    st.write(f"### Available Buses (Showing {len(filtered_df)} buses)")
+    st.write(f"- **AC Buses:** {ac_count} | **Non-AC Buses:** {non_ac_count}")
+    st.write(f"- **Total Available Seats:** {total_available_seats:,}")
+    st.write(f"- **Estimated Sleeper Seats Available:** {sleeper_available:,}")
+    st.write(f"- **Estimated Seater Seats Available:** {seater_available:,}")
+    
+    # Default columns to show
+    default_columns = [
+        'From', 'To', 'bus_name', 'bus_type', 
+        'departing_time', 'reaching_time', 'duration',
+        'seats_available', 'price', 'star_rating'
+    ]
+    
+    selected_columns = st.multiselect(
+        "Select columns to view", 
+        filtered_df.columns.tolist(), 
+        default=default_columns
+    )
+    
     if selected_columns:
-        st.dataframe(filtered_df[selected_columns], use_container_width=True)
+        # Format the display of the DataFrame
+        display_df = filtered_df[selected_columns].copy()
+        if 'price' in display_df.columns:
+            display_df['price'] = display_df['price'].apply(lambda x: f"₹{x:,.2f}")
+        if 'seats_available' in display_df.columns:
+            display_df['seats_available'] = display_df['seats_available'].apply(lambda x: f"{x:,}")
+        
+        st.dataframe(display_df, use_container_width=True)
     else:
         st.warning("Please select at least one column to display")
 else:
