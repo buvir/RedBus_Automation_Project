@@ -1,10 +1,3 @@
-# RedBus Model Website in Streamlit
-
-# Commands to run:
-# .venv\Scripts\activate
-# pip install requests pillow streamlit psycopg2 pandas
-# streamlit run C:\Users\USER\Desktop\RedBus_Automation_Project\Red_Bus_Web_streamlit.py
-
 import streamlit as st
 import pandas as pd
 import psycopg2
@@ -40,129 +33,111 @@ DB_CONFIG = {
     "port": "5432",
 }
 
-@st.cache_data
-def get_data():
+@st.cache_data(ttl=300)
+def execute_query(query, params=None):
     conn = psycopg2.connect(**DB_CONFIG)
-    query = "SELECT * FROM bus_routes"  
-    df = pd.read_sql(query, conn)
-    conn.close()
-    
-    if "bustype" in df.columns:
-        df["bustype"] = df["bustype"].astype(str).str.strip()
-    
-    if "price" in df.columns:
-        df["price"] = pd.to_numeric(df["price"], errors="coerce")
-    
-    return df
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, params or ())
+        columns = [desc[0] for desc in cursor.description]
+        results = cursor.fetchall()
+        return pd.DataFrame(results, columns=columns)
+    finally:
+        cursor.close()
+        conn.close()
 
-# Load Data
-df = get_data()
+@st.cache_data(ttl=300)
+def get_route_pairs():
+    route_query = "SELECT DISTINCT route_name FROM bus_routes ORDER BY route_name"
+    route_df = execute_query(route_query)
+    route_pairs = [(r.split(' to ')[0].strip(), r.split(' to ')[1].strip()) for r in route_df['route_name'] if ' to ' in r]
+    return route_pairs
 
-# Sidebar filters
+def get_destinations_for_origin(origin):
+    return sorted({dest for src, dest in get_route_pairs() if src == origin})
+
+def get_all_origins():
+    return sorted({src for src, dest in get_route_pairs()})
+
+if 'from_location' not in st.session_state:
+    st.session_state.from_location = None
+if 'to_location' not in st.session_state:
+    st.session_state.to_location = None
+
 st.sidebar.header("Filter Options")
+st.sidebar.markdown("**Journey Details**")
 
-# 1. Route Name Filter
-route_names = df["route_name"].unique().tolist()
-route_options = ["All"] + route_names
-selected_routes = st.sidebar.multiselect(
-    "Select Route Name(s)", 
-    route_options,
-    default=None,
-    help="Select 'All' to include all routes"
-)
+all_origins = get_all_origins()
+from_location = st.sidebar.selectbox("From", all_origins, index=None, placeholder="Select departure city", key='from_location')
 
-# 2. Star Rating Filter
-if "star_rating" in df.columns:
-    star_ratings = sorted(df["star_rating"].dropna().unique().tolist())
-    star_options = ["All"] + star_ratings
-    selected_stars = st.sidebar.multiselect(
-        "Select Star Rating(s)",
-        star_options,
-        default=None,
-        help="Select 'All' to include all ratings"
-    )
+to_location = None
+if from_location:
+    to_location = st.sidebar.selectbox("To", get_destinations_for_origin(from_location), index=None, placeholder="Select arrival city", key='to_location')
 
-# 3. Bus Type Filter  
-if "bus_type" in df.columns:
-    bus_types = sorted(df["bus_type"].dropna().unique().tolist())
-    bus_options = ["All"] + bus_types
-    selected_types = st.sidebar.multiselect(
-        "Select Bus Type(s)",
-        bus_options,
-        default=None,
-        help="Select 'All' to include all bus types"
-    )
+st.sidebar.markdown("**Departure Time**")
+departure_time = st.sidebar.selectbox("Time of Departure", ["All", "Evening (6PM-12AM)", "Midnight (12AM-6AM)", "Morning (6AM-12PM)", "Afternoon (12PM-6PM)"], index=0)
 
-# 4. Price Range Slider
-if "price" in df.columns:
-    price_min = int(df["price"].min())
-    price_max = int(df["price"].max())
-    price_range = st.sidebar.slider(
-        "Select Price Range",
-        price_min, price_max,
-        (price_min, price_max),
-        help="Drag to set price range"
-    )
+st.sidebar.markdown("**Bus Type**")
+ac_option = st.sidebar.radio("AC Type", ["All", "AC", "Non-AC"], index=0)
 
-# Apply Filters with proper "All" handling
-filtered_df = df.copy()
+st.sidebar.markdown("**Seat Type**")
+seat_type = st.sidebar.radio("Seating Type", ["All", "Sleeper", "Seater"], index=0)
 
-# Route filter
-if selected_routes:
-    if "All" in selected_routes:
-        pass  # Show all routes
-    else:
-        filtered_df = filtered_df[filtered_df["route_name"].isin(selected_routes)]
+st.sidebar.markdown("**Star Rating Range**")
+star_min, star_max = st.sidebar.slider("Select star rating range", 1.0, 5.0, (1.0, 5.0), 0.5)
 
-# Star rating filter
-if "star_rating" in df.columns and selected_stars:
-    if "All" in selected_stars:
-        pass  # Show all ratings
-    else:
-        filtered_df = filtered_df[filtered_df["star_rating"].isin(selected_stars)]
+st.sidebar.markdown("**Price Range**")
+price_range = st.sidebar.slider("Select price range", 0, 10000, (0, 10000), 100)
 
-# Bus type filter  
-if "bus_type" in df.columns and selected_types:
-    if "All" in selected_types:
-        pass  # Show all bus types
-    else:
-        filtered_df = filtered_df[filtered_df["bus_type"].isin(selected_types)]
-
-# Price filter (always applies unless at full range)
-if "price" in df.columns:
-    if price_range != (price_min, price_max):
-        filtered_df = filtered_df[
-            (filtered_df["price"] >= price_range[0]) & 
-            (filtered_df["price"] <= price_range[1])
-        ]
-
-# Column Selection
-selected_columns = st.sidebar.multiselect(
-    "Select columns to view", 
-    df.columns, 
-    default=df.columns
-)
-
-# Display Data
-st.write(f"### Filtered Bus Data (Showing {len(filtered_df)} of {len(df)} records)")
-# Custom CSS
-st.markdown("""
-<style>
-    /* Red headers */
-    .stDataFrame thead tr th {
-        background-color: #ff0000 !important;
-        color: white !important;
-    }
+def load_filtered_data():
+    base_query = "SELECT * FROM bus_routes WHERE 1=1"
+    params = []
     
-    /* Red border */
-    .stDataFrame {
-        border: 2px solid #ff0000 !important;
-        border-radius: 5px !important;
+    if st.session_state.from_location:
+        base_query += " AND route_name LIKE %s"
+        params.append(f"{st.session_state.from_location} to %")
+    
+    if st.session_state.to_location:
+        base_query += " AND route_name LIKE %s"
+        params.append(f"% to {st.session_state.to_location}")
+    
+    time_filters = {
+        "Evening (6PM-12AM)": ("18:00:00", "23:59:59"),
+        "Midnight (12AM-6AM)": ("00:00:00", "05:59:59"),
+        "Morning (6AM-12PM)": ("06:00:00", "11:59:59"),
+        "Afternoon (12PM-6PM)": ("12:00:00", "17:59:59"),
     }
-</style>
-""", unsafe_allow_html=True)
-st.dataframe(filtered_df[selected_columns], use_container_width=True)
+    if departure_time in time_filters:
+        base_query += " AND CAST(departing_time AS TIME) BETWEEN %s AND %s"
+        params.extend(time_filters[departure_time])
+    
+    if ac_option == "AC":
+        base_query += " AND bus_type LIKE %s"
+        params.append("%AC%")
+    elif ac_option == "Non-AC":
+        base_query += " AND bus_type NOT LIKE %s"
+        params.append("%AC%")
+    
+    if seat_type in ["Seater", "Sleeper"]:
+        base_query += " AND bus_type LIKE %s"
+        params.append(f"%{seat_type}%")
+    
+    base_query += " AND star_rating BETWEEN %s AND %s AND price BETWEEN %s AND %s"
+    params.extend([star_min, star_max, price_range[0], price_range[1]])
+    
+    return execute_query(base_query, params)
 
-# Show unfiltered count when filters are active
-if (len(filtered_df) != len(df)):
-    st.sidebar.markdown(f"**Filtered:** {len(filtered_df)}/{len(df)} buses")
+filtered_df = load_filtered_data()
+
+if not filtered_df.empty:
+    filtered_df[['From', 'To']] = filtered_df['route_name'].str.split(' to ', n=1, expand=True)
+    ac_count = filtered_df['bus_type'].str.contains('AC', case=False).sum()
+    non_ac_count = len(filtered_df) - ac_count
+    st.write(f"### Available Buses (Showing {len(filtered_df)} buses), {ac_count} AC and {non_ac_count} Non-AC")
+    selected_columns = st.multiselect("Select columns to view", filtered_df.columns.tolist(), default=['From', 'To', 'departing_time', 'reaching_time'])
+    if selected_columns:
+        st.dataframe(filtered_df[selected_columns], use_container_width=True)
+    else:
+        st.warning("Please select at least one column to display")
+else:
+    st.warning("No buses found matching your criteria")
