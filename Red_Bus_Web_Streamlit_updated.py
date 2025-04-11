@@ -79,7 +79,7 @@ from_location = st.sidebar.selectbox(
     "From", 
     all_origins, 
     index=None,
-    placeholder="Select departure city",
+    placeholder="Select departure",
     key='from_location_select'
 )
 
@@ -90,7 +90,7 @@ if st.session_state.from_location_select:
         "To", 
         destinations, 
         index=None,
-        placeholder="Select arrival city",
+        placeholder="Select arrival",
         key='to_location_select'
     )
 

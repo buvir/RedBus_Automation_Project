@@ -85,12 +85,12 @@ st.sidebar.header("Filter Options")
 st.sidebar.markdown("**Journey Details**")
 
 all_origins = get_all_origins()
-from_location = st.sidebar.selectbox("From", all_origins, index=None, placeholder="Select departure city", key='from_location_select')
+from_location = st.sidebar.selectbox("From", all_origins, index=None, placeholder="Select departure", key='from_location_select')
 
 to_location = None
 if st.session_state.from_location_select:
     destinations = get_destinations_for_origin(st.session_state.from_location_select)
-    to_location = st.sidebar.selectbox("To", destinations, index=None, placeholder="Select arrival city", key='to_location_select')
+    to_location = st.sidebar.selectbox("To", destinations, index=None, placeholder="Select arrival", key='to_location_select')
 
 def filter_and_display_buses():
     if st.session_state.from_location_select and st.session_state.to_location_select:
@@ -177,8 +177,8 @@ if st.session_state.from_location_select and st.session_state.to_location_select
         departure_state = get_state_in_india(st.session_state.from_location_select)
         arrival_state = get_state_in_india(st.session_state.to_location_select)
 
-        st.write(f"\U0001F4CD **This state is for the 'Select departure city' → `{st.session_state.from_location_select}`: `{departure_state}`**")
-        st.write(f"\U0001F4CD **This state is for the 'Select arrival city' → `{st.session_state.to_location_select}`: `{arrival_state}`**")
+        st.write(f"\U0001F4CD **This state is for the 'Select departure' → `{st.session_state.from_location_select}`: `{departure_state}`**")
+        st.write(f"\U0001F4CD **This state is for the 'Select arrival' → `{st.session_state.to_location_select}`: `{arrival_state}`**")
 
 if st.session_state.search_clicked:
     filtered_df = filter_and_display_buses()
